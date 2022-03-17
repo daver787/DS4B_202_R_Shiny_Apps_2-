@@ -24,12 +24,44 @@ library(fs)
 
 
 # 1.0 GET STOCK LIST ----
+stock_list_tbl <- tq_index("SP500") %>%
+    select(symbol, company) %>%
+    arrange(symbol) %>%
+    mutate(label = str_c(symbol,company, sep = ", ")) %>%
+    select(label)
+
+stock_list_tbl
+
+get_stock_list <- function(stock_index = "SP500"){
+    
+    tq_index(stock_index) %>%
+        select(symbol, company) %>%
+        arrange(symbol) %>%
+        mutate(label = str_c(symbol,company, sep = ", ")) %>%
+        select(label)
+    
+}
 
 
+tq_index_options()
+
+get_stock_list("DOW")
+get_stock_list("SP500")
 
 # 2.0 EXTRACT SYMBOL BASED ON USER INPUT ----
 
+user_input <- "AAPL, Apple Inc."
 
+user_input %>% str_split(pattern = ", ") %>% pluck(1,1)
+
+get_symbol_from_user_input <- function(user_input){
+    user_input %>% str_split(pattern = ", ") %>% pluck(1,1)
+    
+}
+
+"A, Agilent Technologies Inc." %>% get_symbol_from_user_input()
+
+"AAPL, Apple Inc." %>% get_symbol_from_user_input()
 
 # 3.0 GET STOCK DATA ----
 
