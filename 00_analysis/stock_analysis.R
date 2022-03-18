@@ -64,8 +64,31 @@ get_symbol_from_user_input <- function(user_input){
 "AAPL, Apple Inc." %>% get_symbol_from_user_input()
 
 # 3.0 GET STOCK DATA ----
+from <- ymd("2019-08-20")- days(180)
+to <- ymd("2019-08-20") 
+
+"AAPL" %>% tq_get("stock.prices", from = "2018-01-01", to = "2019-01-01")
+
+"AAPL" %>% tq_get("stock.prices", from = from, to = to) %>% 
+    select(date, adjusted) %>%
+    mutate(mavg_short = rollmean(adjusted, k = 5, na.pad = TRUE, align = "right")) %>%
+    mutate(mavg_long = rollmean(adjusted, k = 50, na.pad = TRUE, align = "right"))
 
 
+get_stock_data <- function(stock_symbol,
+                           from       = today() -days(180),
+                           to         = today(),
+                           mavg_short = 20,
+                           mavg_long  = 50){
+    
+    stock_symbol %>% tq_get("stock.prices", from = from, to = to) %>% 
+        select(date, adjusted) %>%
+        mutate(mavg_short = rollmean(adjusted, k = mavg_short, na.pad = TRUE, align = "right")) %>%
+        mutate(mavg_long = rollmean(adjusted, k = mavg_long, na.pad = TRUE, align = "right"))
+    
+}
+
+get_stock_data("A", from = "2018-01-01", to = "2018-06-30", mavg_short = 5, mavg_long = 8)
 
 # 4.0 PLOT STOCK DATA ----
 
