@@ -88,11 +88,39 @@ get_stock_data <- function(stock_symbol,
     
 }
 
-get_stock_data("A", from = "2018-01-01", to = "2018-06-30", mavg_short = 5, mavg_long = 8)
+stock_data_tbl <- get_stock_data("AAPL", from = "2018-01-01", to = "2018-06-30", mavg_short = 5, mavg_long = 8)
 
 # 4.0 PLOT STOCK DATA ----
+g <- stock_data_tbl %>%
+    gather(key = "legend", value = "value", adjusted:mavg_long, factor_key =TRUE) %>%
+    ggplot(aes(date, value, color = legend, group = legend)) +
+    geom_line(aes(linetype = legend)) +
+    theme_tq() +
+    scale_y_continuous(labels = scales::dollar_format(largest_with_cents = 10)) +
+    scale_color_tq() +
+    labs(x = "", y = "Adjusted Share Price")
+
+ggplotly(g)
+
+plot_stock_data <- function(data){
+    g <- data%>%
+        gather(key = "legend", value = "value", adjusted:mavg_long, factor_key = TRUE) %>%
+        ggplot(aes(date, value, color = legend, group = legend)) +
+        geom_line(aes(linetype = legend)) +
+        theme_tq() +
+        scale_y_continuous(labels = scales::dollar_format(largest_with_cents = 10)) +
+        scale_color_tq() +
+        labs(x = "", y = "Adjusted Share Price")
+    
+    ggplotly(g)
+}
 
 
+plot_stock_data(stock_data_tbl)
+
+"AAPL" %>%
+    get_stock_data(from = "2018-01-01", to = "2018-06-30", mavg_short = 5, mavg_long = 8) %>%
+    plot_stock_data()
 
 # 5.0 GENERATE COMMENTARY ----
 
