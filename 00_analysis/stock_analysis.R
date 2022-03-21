@@ -166,8 +166,23 @@ generate_commentary(stock_data_tbl, user_input = user_input)
 
 
 # 6.0 TEST WORKFLOW ----
+get_stock_list("SP500")
 
-
+"ABT, Abbott Laboratories" %>%
+    get_symbol_from_user_input() %>%
+    get_stock_data(from = "2018-01-01", to = "2019-01-01") %>%
+    #plot_stock_data()
+    generate_commentary(user_input = "ABT, Abbott Laboratories")
 
 # 7.0 SAVE SCRIPTS ----
+
+fs::dir_create("00_scripts")
+
+dump(
+    list   = c("get_stock_list", "get_symbol_from_user_input", "get_stock_data", "plot_stock_data", "generate_commentary"),
+    file   = "00_scripts/stock_analysis_functions.R",
+    append = FALSE)
+
+
+
 
