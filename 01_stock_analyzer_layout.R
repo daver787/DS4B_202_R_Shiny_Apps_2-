@@ -18,7 +18,11 @@ library(tidyverse)
 source(file = "00_scripts/stock_analysis_functions.R")
 
 # UI ----
+ui <- fluidPage(title = "Stock Analyzer")
 
 # SERVER ----
-
+server <- function(input, output, session){
+    
+}
 # RUN APP ----
+shinyApp(ui = ui, server = server)
