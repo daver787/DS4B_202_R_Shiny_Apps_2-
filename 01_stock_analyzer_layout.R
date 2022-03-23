@@ -18,7 +18,28 @@ library(tidyverse)
 source(file = "00_scripts/stock_analysis_functions.R")
 
 # UI ----
-ui <- fluidPage(title = "Stock Analyzer")
+ui <- fluidPage(
+    title = "Stock Analyzer",
+    
+    #1.0 HEADER ----
+    div(
+        h1("Stock Analyzer", "by Business Science"),
+        p("This is the first mini-project completed in our", "Expert Shiny Application Course (DS4B 202-R)")
+    ),
+    
+    # 2.0 APPLICATION UI ----
+    div(
+       column(
+           width = 4,
+           wellPanel(
+               pickerInput(inputId = "stock_selection",
+                           choices = 1:10)
+           )
+           ),
+       column(width = 8, "Plot")
+    )
+    
+    )
 
 # SERVER ----
 server <- function(input, output, session){
