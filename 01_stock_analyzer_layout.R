@@ -16,6 +16,11 @@ library(tidyquant)
 library(tidyverse)
 
 source(file = "00_scripts/stock_analysis_functions.R")
+stock_list_tbl <- get_stock_list("SP500")
+
+
+
+
 
 # UI ----
 ui <- fluidPage(
@@ -32,10 +37,22 @@ ui <- fluidPage(
        column(
            width = 4,
            wellPanel(
-               pickerInput(inputId = "stock_selection",
-                           choices = 1:10)
+               pickerInput(inputId  = "stock_selection",
+                           label    = "Stock List (Pick One to Analyze)", 
+                           choices  = stock_list_tbl$label,
+                           multiple = FALSE,
+                           selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
+                           options  = pickerOptions(
+                               actionsBox = FALSE,
+                               liveSearch = TRUE,
+                               size       = 10 
+                           ) 
+                           ),
+               actionButton(inputId = "analyze", label = "Analyze", icon = icon("download"))
            )
-           ),
+          
+          ),
+       
        column(width = 8, "Plot")
     )
     
