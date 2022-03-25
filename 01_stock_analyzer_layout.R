@@ -17,7 +17,7 @@ library(tidyverse)
 
 source(file = "00_scripts/stock_analysis_functions.R")
 stock_list_tbl <- get_stock_list("SP500")
-
+stock_data_tbl <- get_stock_data("AAPL", from = "2018-01-01", to = "2019-01-01")
 
 
 
@@ -53,10 +53,32 @@ ui <- fluidPage(
           
           ),
        
-       column(width = 8, "Plot")
-    )
+       column(width = 8, 
+              div(
+                  div(
+                      h4("Placeholder - Stock Selected is ...")),
+                  div(
+                      stock_data_tbl %>% plot_stock_data()
+                  )
+            )
+        )
+    ),
     
+    #3.0 ANALYST COMMENTARY ----
+    div(
+        column(
+            width = 12,
+            div(
+                div(h4("Analyst Commentary")),
+                div(
+                    stock_data_tbl %>% generate_commentary(user_input = "Placeholder")
+                )
+            )
+        )
     )
+)
+    
+    
 
 # SERVER ----
 server <- function(input, output, session){
