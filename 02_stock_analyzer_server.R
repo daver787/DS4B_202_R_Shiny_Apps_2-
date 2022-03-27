@@ -57,7 +57,9 @@ ui <- fluidPage(
             div(
                 div(h4(textOutput(outputId = "plot_header" ))),
                 div(
-                    stock_data_tbl %>% plot_stock_data()
+                    plotlyOutput(outputId = "plotly_plot")
+                   #verbatimTextOutput(outputId = "stock_data")
+                    #stock_data_tbl %>% plot_stock_data()
                 )
             )
         )
@@ -92,6 +94,23 @@ server <- function(input, output, session) {
     
     output$plot_header <- renderText({
         plot_header()
+    })
+    
+    # Get Stock Data ----
+    stock_data_tbl  <- reactive({
+        stock_symbol() %>%
+            get_stock_data(
+                from       = today() - days(180),
+                to         = today(),
+                mavg_short = 20,
+                mavg_long  = 50)
+    })
+    
+    #output$stock_data <- renderPrint({ stock_data_tbl()})
+    
+    # Plotly Plot ----
+    output$plotly_plot <- renderPlotly({
+        stock_data_tbl() %>% plot_stock_data()
     })
 }
 
