@@ -19,8 +19,6 @@ source(file = "00_scripts/stock_analysis_functions.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
-stock_data_tbl <- get_stock_data("AAPL", from = "2018-01-01", to = "2019-01-01")
-
 # UI ----
 ui <- fluidPage(
     title = "Stock Analyzer",
@@ -48,8 +46,7 @@ ui <- fluidPage(
                         size = 10
                     )
                 ),
-                actionButton(inputId = "analyze", label = "Analyze", icon = icon("download")),
-                verbatimTextOutput(outputId = "selected_symbol")
+                actionButton(inputId = "analyze", label = "Analyze", icon = icon("download"))
             )
         ),
         column(
@@ -58,8 +55,6 @@ ui <- fluidPage(
                 div(h4(textOutput(outputId = "plot_header" ))),
                 div(
                     plotlyOutput(outputId = "plotly_plot")
-                   #verbatimTextOutput(outputId = "stock_data")
-                    #stock_data_tbl %>% plot_stock_data()
                 )
             )
         )
@@ -72,7 +67,7 @@ ui <- fluidPage(
             div(
                 div(h4("Analyst Commentary")),
                 div(
-                   # stock_data_tbl %>% generate_commentary(user_input = "Placeholder")
+                    textOutput(outputId = "analyst_commentary")
                 )
             )
         )
@@ -82,19 +77,17 @@ ui <- fluidPage(
 # SERVER ----
 server <- function(input, output, session) {
     
+    # Stock Symbol ----
     stock_symbol <- eventReactive(input$analyze,{
         get_symbol_from_user_input(input$stock_selection)
     }, ignoreNULL = FALSE)
     
-    output$selected_symbol <- renderText(stock_symbol())
     
-    plot_header <- eventReactive(input$analyze,{
+    # User Input ----
+    stock_selection_triggered <- eventReactive(input$analyze,{
         input$stock_selection
     }, ignoreNULL = FALSE)
     
-    output$plot_header <- renderText({
-        plot_header()
-    })
     
     # Get Stock Data ----
     stock_data_tbl  <- reactive({
@@ -106,11 +99,19 @@ server <- function(input, output, session) {
                 mavg_long  = 50)
     })
     
-    #output$stock_data <- renderPrint({ stock_data_tbl()})
+    # Plot Header ----
+    output$plot_header <- renderText({
+        stock_selection_triggered()
+    })
     
     # Plotly Plot ----
     output$plotly_plot <- renderPlotly({
         stock_data_tbl() %>% plot_stock_data()
+    })
+    
+    # Generate Commentary ----
+    output$analyst_commentary <- renderText({
+        generate_commentary(data = stock_data_tbl(), user_input = stock_selection_triggered())
     })
 }
 
