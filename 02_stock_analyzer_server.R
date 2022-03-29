@@ -46,7 +46,10 @@ ui <- fluidPage(
                         size = 10
                     )
                 ),
-                actionButton(inputId = "analyze", label = "Analyze", icon = icon("download"))
+                actionButton(inputId = "analyze", label = "Analyze", icon = icon("download")),
+                hr(),
+                sliderInput(inputId = "mavg_short", label = "Short Moving Average", min = 5,max = 40,value = 20),
+                sliderInput(inputId = "mavg_long", label = "Long Moving Average", min = 50, max = 120, value =50)
             )
         ),
         column(
@@ -95,9 +98,10 @@ server <- function(input, output, session) {
             get_stock_data(
                 from       = today() - days(180),
                 to         = today(),
-                mavg_short = 20,
-                mavg_long  = 50)
+                mavg_short = input$mavg_short,
+                mavg_long  = input$mavg_long)
     })
+    
     
     # Plot Header ----
     output$plot_header <- renderText({
