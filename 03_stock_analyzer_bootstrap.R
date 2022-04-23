@@ -15,6 +15,8 @@
 # LIBRARIES ----
 library(shiny)
 library(shinyWidgets)
+library(shinythemes)
+
 
 library(plotly)
 library(tidyquant)
@@ -27,19 +29,30 @@ stock_list_tbl <- get_stock_list("SP500")
 # UI ----
 ui <- navbarPage(
     title       = "Stock Analyzer",
-    inverse     = TRUE,
+    inverse     = FALSE,
     collapsible = TRUE,
+    
+    theme       = shinytheme("paper"),
     
     tabPanel(
         title = "Analysis",
+       
+        # CSS ----
+        shinythemes::themeSelector(),
+        
         # 1.0 HEADER ----
         div(
-            h1("Stock Analyzer", "by Business Science"),
-            p("This is the first mini-project completed in our", "Expert Shiny Applications Course (DS4B 202-R)")
+            class = "container",
+            id    = "header",
+            h1(class = "page-header","Stock Analyzer", tags$small( "by Business Science")),
+            p(class = "lead","This is the first mini-project completed in our", 
+              a(href = "https://www.business-science.io/", target = "_blank","Expert Shiny Applications Course (DS4B 202-R)"))
         ),
         
         # 2.0 APPLICATION UI -----
         div(
+            class = "container",
+            id    = "application_ui",
             column(
                 width = 4, 
                 wellPanel(
@@ -74,6 +87,8 @@ ui <- navbarPage(
         
         # 3.0 ANALYST COMMENTARY ----
         div(
+            class = "container",
+            id = "commentary",
             column(
                 width = 12,
                 div(
