@@ -56,29 +56,49 @@ ui <- navbarPage(
             column(
                 width = 4, 
                 wellPanel(
-                    pickerInput(
-                        inputId = "stock_selection", 
-                        label   = "Stock List (Pick One to Analyze)",
-                        choices = stock_list_tbl$label,
-                        multiple = FALSE, 
-                        selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
-                        options = pickerOptions(
-                            actionsBox = FALSE,
-                            liveSearch = TRUE,
-                            size = 10
+                    div(
+                        id = "input_main",
+                        pickerInput(
+                            inputId = "stock_selection", 
+                            label   = "Stock List (Pick One to Analyze)",
+                            choices = stock_list_tbl$label,
+                            multiple = FALSE, 
+                            selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
+                            options = pickerOptions(
+                                actionsBox = FALSE,
+                                liveSearch = TRUE,
+                                size = 10
+                            )
                         )
+                        
                     ),
-                    actionButton(inputId = "analyze", label = "Analyze", icon = icon("download")),
-                    hr(),
-                    sliderInput(inputId = "mavg_short", label = "Short Moving Average", value = 20, min = 5, max = 40),
-                    sliderInput(inputId = "mavg_long", label = "Long Moving Average", value = 50, min = 50, max = 120)
+                    div(
+                       id = "input_button" ,
+                       actionButton(inputId = "analyze", label = "Analyze", icon = icon("download")),
+                       div(
+                           class = "pull-right",
+                           actionButton(inputId = "settings_toggle", label = NULL, icon = icon("cog"))
+                       )
+                       
+                    ),
+                    div(
+                        id = "input_settings",
+                        hr(),
+                        sliderInput(inputId = "mavg_short", label = "Short Moving Average", value = 20, min = 5, max = 40),
+                        sliderInput(inputId = "mavg_long", label = "Long Moving Average", value = 50, min = 50, max = 120) 
+                    )
+                    
                 )
             ),
             column(
                 width = 8, 
                 div(
-                    div(h4(textOutput(outputId = "plot_header"))),
+                    class = "panel",
                     div(
+                        class = "panel-header",
+                        h4(textOutput(outputId = "plot_header"))),
+                    div(
+                        class = "panel-body",
                         plotlyOutput(outputId = "plotly_plot")
                     )
                 )
