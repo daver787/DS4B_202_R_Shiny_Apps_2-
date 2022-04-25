@@ -39,7 +39,10 @@ ui <- navbarPage(
        
         # CSS ----
         shinythemes::themeSelector(),
-        
+        tags$head(
+            tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+        )
+        ,
         # 1.0 HEADER ----
         div(
             class = "container",
@@ -94,6 +97,7 @@ ui <- navbarPage(
                 width = 8, 
                 div(
                     class = "panel",
+                    style = "padding: 10px;",
                     div(
                         class = "panel-header",
                         h4(textOutput(outputId = "plot_header"))),
@@ -108,12 +112,13 @@ ui <- navbarPage(
         # 3.0 ANALYST COMMENTARY ----
         div(
             class = "container",
-            id = "commentary",
+            id    = "commentary",
             column(
                 width = 12,
                 div(
-                    div(h4("Analyst Commentary")),
-                    div(
+                    class = "panel",
+                    div(class = "panel-header", h4("Analyst Commentary")),
+                    div(class = "panel-body",
                         textOutput(outputId = "analyst_commentary")
                     )
                 )
