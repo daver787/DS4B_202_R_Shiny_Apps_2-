@@ -16,6 +16,7 @@
 library(shiny)
 library(shinyWidgets)
 library(shinythemes)
+library(shinyjs)
 
 
 library(plotly)
@@ -84,12 +85,13 @@ ui <- navbarPage(
                        )
                        
                     ),
+                    useShinyjs(),
                     div(
                         id = "input_settings",
                         hr(),
                         sliderInput(inputId = "mavg_short", label = "Short Moving Average", value = 20, min = 5, max = 40),
                         sliderInput(inputId = "mavg_long", label = "Long Moving Average", value = 50, min = 50, max = 120) 
-                    )
+                    ) %>% shinyjs::hidden()
                     
                 )
             ),
@@ -151,6 +153,17 @@ server <- function(input, output, session) {
                 mavg_short = input$mavg_short,
                 mavg_long  = input$mavg_long)
     })
+    
+    # Toggle Input Settings ----
+    
+    observeEvent(input$settings_toggle, {
+        toggle(id = "input_settings", anim = TRUE)
+    })
+    
+    
+    # shinyjs::onclick(id = "settings_toggle",{
+    #     shinyjs::toggle(id = "input_settings", anim = TRUE)
+    # })
     
     # Plot Header ----
     output$plot_header <- renderText({
