@@ -20,7 +20,7 @@ function(stock_symbol,
                            mavg_short = 20,
                            mavg_long  = 50){
     
-    stock_symbol %>% tq_get("stock.prices", from = from, to = to) %>% 
+    stock_symbol %>% tidyquant::tq_get(get = "stock.prices", from = from, to = to) %>% 
         select(date, adjusted) %>%
         mutate(mavg_short = rollmean(adjusted, k = mavg_short, na.pad = TRUE, align = "right")) %>%
         mutate(mavg_long = rollmean(adjusted, k = mavg_long, na.pad = TRUE, align = "right"))
