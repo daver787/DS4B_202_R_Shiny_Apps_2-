@@ -18,6 +18,7 @@ library(tidyquant)
 library(tidyverse)
 
 source(file = "00_scripts/stock_analysis_functions.R")
+source(file = "00_scripts/info_card.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
@@ -50,7 +51,43 @@ ui <- navbarPage(
               a(href = "https://www.business-science.io/", target = "_blank", "Expert Shiny Applications Course (DS4B 202-R)"))
         ),
         
-        # 2.0 APPLICATION UI -----
+        
+        # 2.0 FAVORITES -----
+        div(
+            class = "container hidden-sm hidden-xs",
+            id    = "favorite_container",
+            
+            div(
+                class = "container",
+                column(
+                    width =12,
+                    h5("Favorites")
+                )
+            ),
+            div(
+                class = "container",
+                id    = "favorite_cards",
+                column(
+                    width = 3,
+                    info_card(title     = "AAPL", 
+                              value     = HTML("20-Day <small>vs 50-Day</small>") ,
+                              sub_value ="20%")
+                ),
+                column(
+                    width = 3,
+                    info_card(title          = "NFLX", 
+                              value          = HTML("20-Day <small>vs 50-Day</small>") ,
+                              sub_value      = "20%",
+                              sub_icon       = "arrow-down",
+                              sub_text_color = "danger")
+                )
+            )
+            
+        ),
+        
+        
+        
+        # 3.0 APPLICATION UI -----
         div(
             class = "container",
             id = "application_ui",
@@ -98,14 +135,13 @@ ui <- navbarPage(
                     ),
                     div(
                         class = "panel-body",
-                        textOutput(outputId = "table")
-                        #plotlyOutput(outputId = "plotly_plot")
+                        plotlyOutput(outputId = "plotly_plot")
                     )
                 )
             )
         ),
         
-        # 3.0 ANALYST COMMENTARY ----
+        # 4.0 ANALYST COMMENTARY ----
         div(
             class = "container",
             id = "commentary",
@@ -158,7 +194,6 @@ server <- function(input, output, session) {
         stock_selection_triggered()
     })
     
-    output$table<- renderText({stock_data_tbl()})
     
     # Plotly Plot ----
     output$plotly_plot <- renderPlotly({
