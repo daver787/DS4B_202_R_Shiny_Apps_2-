@@ -19,6 +19,7 @@ library(tidyverse)
 
 source(file = "00_scripts/stock_analysis_functions.R")
 source(file = "00_scripts/info_card.R")
+source(file = "00_scripts/generate_favorite_cards.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
