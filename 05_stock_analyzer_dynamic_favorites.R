@@ -23,6 +23,8 @@ source(file = "00_scripts/generate_favorite_cards.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
+current_user_favorites <- c("AAPL", "GOOG", "NFLX")
+
 # UI ----
 ui <- navbarPage(
     title = "Stock Analyzer",
@@ -61,26 +63,16 @@ ui <- navbarPage(
                 class = "",
                 column(
                     width = 12,
-                    h5("Favorites")
+                    h5(class = "pull-left","Favorites"),
+                    actionButton(class = "pull-right",inputId = "favorites_clear", "Clear Favorites"), 
+                    actionButton(class = "pull-right",inputId = "favorites_toggle", "Show/Hide")
                 )
             ),
             div(
                 class = "",
-                id = "favorite_cards",
-                column(
-                    width = 3,
-                    info_card(title     = "AAPL", 
-                              value     = HTML("20-Day <small>vs 50-Day</small>"), 
-                              sub_value = "20%")
-                ),
-                column(
-                    width = 3,
-                    info_card(title     = "NFLX", 
-                              value     = HTML("20-Day <small>vs 50-Day</small>"), 
-                              sub_value = "-20%", 
-                              sub_icon  = "arrow-down", 
-                              sub_text_color = "danger")
-                )
+                id    = "favorite_cards",
+                verbatimTextOutput(outputId = "favorites_print"),
+                generate_favorite_cards(favorites = current_user_favorites)
             )
         ),
         
@@ -111,7 +103,9 @@ ui <- navbarPage(
                         actionButton(inputId = "analyze", label = "Analyze", icon = icon("download")),
                         div(
                             class = "pull-right",
+                            actionButton(inputId = "favorites_add", label = NULL, icon = icon("heart")),
                             actionButton(inputId = "settings_toggle", label = NULL, icon = icon("cog"))
+                            
                         )
                     ),
                     div(
@@ -200,6 +194,14 @@ server <- function(input, output, session) {
     output$analyst_commentary <- renderText({
         generate_commentary(data = stock_data_tbl(), user_input = stock_selection_triggered())
     })
+    
+    # FAVORITES ----
+    
+    # Reactive Values - User Favorites
+    reactive_values <- reactiveValues()
+    reactive_values$favorites_list <- current_user_favorites
+    
+    output$favorites_print <- renderPrint(reactive_values$favorites_list)
     
 }
 
