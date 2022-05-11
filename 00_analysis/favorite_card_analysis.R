@@ -57,7 +57,7 @@ generate_favorite_card <- function(data) {
         width = 3,
         info_card(
             title          = as.character(data$stock),
-            value          = str_glue("{data$n_short} <small>vs {data$n_long}</small>") %>% HTML(),
+            value          = str_glue("{data$n_short}  Day <small>vs {data$n_long} Day </small>") %>% HTML(),
             sub_value      = data$pct_chg %>% scales::percent(),
             sub_text_color = ifelse(data$mavg_warning_flag, "danger", "success"),
             sub_icon       = ifelse(data$mavg_warning_flag, "arrow-down", "arrow-up")

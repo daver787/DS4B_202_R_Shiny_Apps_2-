@@ -72,7 +72,8 @@ ui <- navbarPage(
                 class = "",
                 id    = "favorite_cards",
                 verbatimTextOutput(outputId = "favorites_print"),
-                generate_favorite_cards(favorites = current_user_favorites)
+                #generate_favorite_cards(favorites = current_user_favorites)
+                uiOutput(outputId = "favorite_cards")
             )
         ),
         
@@ -195,13 +196,30 @@ server <- function(input, output, session) {
         generate_commentary(data = stock_data_tbl(), user_input = stock_selection_triggered())
     })
     
-    # FAVORITES ----
+    # 2.0 FAVORITES ----
     
-    # Reactive Values - User Favorites
+    # 2.1 Reactive Values - User Favorites
     reactive_values <- reactiveValues()
     reactive_values$favorites_list <- current_user_favorites
     
     output$favorites_print <- renderPrint(reactive_values$favorites_list)
+    
+    # 2.2 Add Favorites ----
+    observeEvent(input$favorites_add, {
+        new_symbol <- get_symbol_from_user_input(input$stock_selection)
+        reactive_values$favorites_list <- c(reactive_values$favorites_list, new_symbol) %>% unique()
+    })
+    
+    # 2.3 Render Favorite Cards
+    output$favorite_cards <- renderUI({
+        generate_favorite_cards(
+            favorites  = reactive_values$favorites_list,
+            from       = today() -days(180),
+            to         = today(),
+            mavg_short = input$mavg_short,
+            mavg_long  =  input$mavg_long
+        )
+    })
     
 }
 
