@@ -69,11 +69,9 @@ ui <- navbarPage(
                 )
             ),
             div(
-                class = "",
-                id    = "favorite_cards",
-                verbatimTextOutput(outputId = "favorites_print"),
-                #generate_favorite_cards(favorites = current_user_favorites)
-                uiOutput(outputId = "favorite_cards")
+                class = "row",
+                id    = "favorite_card_section",
+                uiOutput(outputId = "favorite_cards", class = "container")
             )
         ),
         
@@ -202,8 +200,6 @@ server <- function(input, output, session) {
     reactive_values <- reactiveValues()
     reactive_values$favorites_list <- current_user_favorites
     
-    output$favorites_print <- renderPrint(reactive_values$favorites_list)
-    
     # 2.2 Add Favorites ----
     observeEvent(input$favorites_add, {
         new_symbol <- get_symbol_from_user_input(input$stock_selection)
@@ -265,7 +261,7 @@ server <- function(input, output, session) {
     
     #2.5 Show/Hide Favorites ----
     shinyjs::onclick(id = "favorites_toggle",{
-        shinyjs::toggle(id = "favorite_cards", anim = TRUE, animType = "fade")
+        shinyjs::toggle(id = "favorite_card_section", anim = TRUE, animType = "slide")
     })
 
 }
