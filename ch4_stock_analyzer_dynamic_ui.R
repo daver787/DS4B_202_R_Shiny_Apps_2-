@@ -217,14 +217,14 @@ server <- function(input, output, session) {
     # 2.3 Render Favorite Cards ----
     output$favorite_cards <- renderUI({
         if(length(reactive_values$favorites_list) >= 1){
-        generate_favorite_cards(
-            favorites  = reactive_values$favorites_list,
-            from       = today() - days(180), 
-            to         = today(),
-            mavg_short = input$mavg_short,
-            mavg_long  = input$mavg_long
-        )
-            }
+            generate_favorite_cards(
+                favorites  = reactive_values$favorites_list,
+                from       = today() - days(180), 
+                to         = today(),
+                mavg_short = input$mavg_short,
+                mavg_long  = input$mavg_long
+            )
+        }
     })
     
     # 2.4 Delete Favorites ----

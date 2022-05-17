@@ -58,6 +58,7 @@ ui <- navbarPage(
         div(
             class = "container hidden-sm hidden-xs",
             id = "favorite_container",
+            # 2.1 USER INPUTS ----
             
             div(
                 class = "",
@@ -68,6 +69,7 @@ ui <- navbarPage(
                     actionButton(inputId = "favorites_toggle", "Show/Hide", class = "pull-right")
                 )
             ),
+            # 2.2 FAVORITE CARDS ----
             div(
                 class = "row",
                 id = "favorite_card_section",
@@ -114,19 +116,10 @@ ui <- navbarPage(
                     ) %>% hidden()
                 )
             ),
+            #  3.2 PLOT PANEL ----
             column(
                 width = 8, 
-                div(
-                    class = "panel", 
-                    div(
-                        class = "panel-header",
-                        h4(textOutput(outputId = "plot_header"))
-                    ),
-                    div(
-                        class = "panel-body",
-                        plotlyOutput(outputId = "plotly_plot")
-                    )
-                )
+                uiOutput(outputId = "stock_charts")
             )
         ),
         
@@ -219,7 +212,6 @@ server <- function(input, output, session) {
         }
         
     })
-    
     # 2.4 Delete Favorites ----
     observeEvent(input$favorites_clear, {
         modalDialog(
@@ -271,6 +263,55 @@ server <- function(input, output, session) {
         shinyjs::toggle(id = "favorite_card_section", anim = TRUE, animType = "slide")
     })
     
+    # 3.0 FAVORITE PLOTS ----
+    output$stock_charts <- renderUI({
+        
+        
+        tab_panel_1 <- tabPanel(
+            title = "Last Analysis",
+            div(
+                class = "panel",
+                div(
+                    class = "panel-header",
+                    h4(stock_symbol())
+                ),
+                div(
+                    class = "panel-body",
+                    plotlyOutput(outputId = "plotly_plot")
+                )
+            )
+        )
+        
+        
+        favorite_tab_panels <- list(
+            tabPanel(
+                title = reactive_values$favorites_list[[1]],
+                div(
+                    class = "panel",
+                    div(
+                        class = "panel-header",
+                        h4(reactive_values$favorites_list[[1]])
+                    ),
+                    div(
+                        class = "panel-body",
+                        reactive_values$favorites_list[[1]]%>%
+                            get_stock_data(
+                                from       = today() - days(180),
+                                to         = today(),
+                                mavg_short = input$mavg_short,
+                                mavg_long  = input$mavg_long
+                            ) %>%
+                            plot_stock_data()
+                    )
+                )
+            )
+        )
+        
+        do.call(
+            what = tabsetPanel,
+            args = list(tab_panel_1)
+        )
+    })
     
 }
 
