@@ -266,7 +266,7 @@ server <- function(input, output, session) {
     # 3.0 FAVORITE PLOTS ----
     output$stock_charts <- renderUI({
         
-        
+        # First Tab Panel
         tab_panel_1 <- tabPanel(
             title = "Last Analysis",
             div(
@@ -282,35 +282,45 @@ server <- function(input, output, session) {
             )
         )
         
+      # Favorite Panels
+      favorite_tab_panels <- NULL
+      
+      if (length(reactive_values$favorites_list) >0){
+          
+         favorite_tab_panels <-  reactive_values$favorites_list %>%
+              map(.f = function(x){
+                  tabPanel(
+                      title = x,
+                      div(
+                          class = "panel",
+                          div(
+                              class = "panel-header",
+                              h4(x)
+                          ),
+                          div(
+                              class = "panel-body",
+                              x %>%
+                                  get_stock_data(
+                                      from       = today() - days(180),
+                                      to         = today(),
+                                      mavg_short = input$mavg_short,
+                                      mavg_long  = input$mavg_long
+                                  ) %>%
+                                  plot_stock_data()
+                          )
+                      )
+                  )
+              })
+      }
         
-        favorite_tab_panels <- list(
-            tabPanel(
-                title = reactive_values$favorites_list[[1]],
-                div(
-                    class = "panel",
-                    div(
-                        class = "panel-header",
-                        h4(reactive_values$favorites_list[[1]])
-                    ),
-                    div(
-                        class = "panel-body",
-                        reactive_values$favorites_list[[1]]%>%
-                            get_stock_data(
-                                from       = today() - days(180),
-                                to         = today(),
-                                mavg_short = input$mavg_short,
-                                mavg_long  = input$mavg_long
-                            ) %>%
-                            plot_stock_data()
-                    )
-                )
-            )
-        )
-        
+        # Building the Tabset Panel
         do.call(
             what = tabsetPanel,
-            args = list(tab_panel_1)
+            args = list(tab_panel_1) %>% 
+                append(favorite_tab_panels) %>%
+                append(list(id ="tab_panel_stock_chart", type ="pills"))
         )
+        
     })
     
 }
