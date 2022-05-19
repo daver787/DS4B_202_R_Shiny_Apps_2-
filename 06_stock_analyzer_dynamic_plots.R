@@ -112,7 +112,8 @@ ui <- navbarPage(
                         id = "input_settings",
                         hr(),
                         sliderInput(inputId = "mavg_short", label = "Short Moving Average", value = 20, min = 5, max = 40),
-                        sliderInput(inputId = "mavg_long", label = "Long Moving Average", value = 50, min = 50, max = 120)
+                        sliderInput(inputId = "mavg_long", label = "Long Moving Average", value = 50, min = 50, max = 120),
+                        actionButton(inputId = "apply_and_save", label ="Apply and Save", icon =icon("save") )
                     ) %>% hidden()
                 )
             ),
@@ -160,6 +161,16 @@ server <- function(input, output, session) {
     stock_selection_triggered <- eventReactive(input$analyze, {
         input$stock_selection
     }, ignoreNULL = FALSE)
+    
+    # Apply & Save Settings ----
+    mavg_short <- eventReactive(input$apply_and_save,{
+        input$mavg_short
+    }, ignoreNULL = FALSE)
+    
+    mavg_long <- eventReactive(input$apply_and_save,{
+        input$mavg_long
+    }, ignoreNULL = FALSE)
+    
 
     # Get Stock Data ----
     stock_data_tbl <- reactive({
@@ -167,8 +178,8 @@ server <- function(input, output, session) {
             get_stock_data(
                 from = today() - days(180), 
                 to   = today(),
-                mavg_short = input$mavg_short,
-                mavg_long  = input$mavg_long)
+                mavg_short = mavg_short(),
+                mavg_long  = mavg_long())
     })
     
     # Plot Header ----
@@ -206,8 +217,8 @@ server <- function(input, output, session) {
                 favorites  = reactive_values$favorites_list,
                 from       = today() - days(180),
                 to         = today(),
-                mavg_short = input$mavg_short,
-                mavg_long  = input$mavg_long
+                mavg_short = mavg_short(),
+                mavg_long  = mavg_long()
             )
         }
         
@@ -303,8 +314,8 @@ server <- function(input, output, session) {
                                   get_stock_data(
                                       from       = today() - days(180),
                                       to         = today(),
-                                      mavg_short = input$mavg_short,
-                                      mavg_long  = input$mavg_long
+                                      mavg_short = mavg_short(),
+                                      mavg_long  = mavg_long()
                                   ) %>%
                                   plot_stock_data()
                           )
