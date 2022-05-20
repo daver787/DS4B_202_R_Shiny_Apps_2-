@@ -171,6 +171,16 @@ server <- function(input, output, session) {
         input$mavg_long
     }, ignoreNULL = FALSE)
     
+    
+    selected_tab <- eventReactive(input$apply_and_save,{
+        if (is.character(input$tab_panel_stock_chart)){
+            # Tab panel already built
+            selected_tab <- input$tab_panel_stock_chart
+        }else{  #Tab panel not built
+            selected_tab <- "Last Analysis"}
+    
+        }, ignoreNULL=FALSE)
+    
 
     # Get Stock Data ----
     stock_data_tbl <- reactive({
@@ -324,12 +334,13 @@ server <- function(input, output, session) {
               })
       }
         
+    
         # Building the Tabset Panel
         do.call(
             what = tabsetPanel,
             args = list(tab_panel_1) %>% 
                 append(favorite_tab_panels) %>%
-                append(list(id ="tab_panel_stock_chart", type ="pills"))
+                append(list(id ="tab_panel_stock_chart", type ="pills", selected = selected_tab()))
         )
         
     })
