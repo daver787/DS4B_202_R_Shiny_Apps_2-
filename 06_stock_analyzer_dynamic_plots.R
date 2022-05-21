@@ -78,6 +78,8 @@ ui <- navbarPage(
         ),
         
         # 3.0 APPLICATION UI -----
+        
+        #3.1 USER INPUTS ----
         div(
             class = "container",
             id = "application_ui",
@@ -147,22 +149,24 @@ ui <- navbarPage(
 # SERVER ----
 server <- function(input, output, session) {
     
-    # Toggle Input Settings ----
+    # 1.0 SETTINGS ----
+    
+    # 1.1 Toggle Input Settings ----
     observeEvent(input$settings_toggle, {
         toggle(id = "input_settings", anim = TRUE)
     })
     
-    # Stock Symbol ----
+    # 1.2 Stock Symbol ----
     stock_symbol <- eventReactive(input$analyze, {
         get_symbol_from_user_input(input$stock_selection)
     }, ignoreNULL = FALSE)
     
-    # User Input ----
+    #1.3  User Input ----
     stock_selection_triggered <- eventReactive(input$analyze, {
         input$stock_selection
     }, ignoreNULL = FALSE)
     
-    # Apply & Save Settings ----
+    # 1.4 Apply & Save Settings ----
     mavg_short <- eventReactive(input$apply_and_save,{
         input$mavg_short
     }, ignoreNULL = FALSE)
@@ -182,7 +186,7 @@ server <- function(input, output, session) {
         }, ignoreNULL=FALSE)
     
 
-    # Get Stock Data ----
+    # 1.5 Get Stock Data ----
     stock_data_tbl <- reactive({
         stock_symbol() %>% 
             get_stock_data(
@@ -192,22 +196,11 @@ server <- function(input, output, session) {
                 mavg_long  = mavg_long())
     })
     
-    # Plot Header ----
-    output$plot_header <- renderText({
-        stock_selection_triggered()
-    })
+   
     
-    # Plotly Plot ----
-    output$plotly_plot <- renderPlotly({
-        stock_data_tbl() %>% plot_stock_data()
-    })
+  
     
-    # Generate Commentary ----
-    output$analyst_commentary <- renderText({
-        generate_commentary(data = stock_data_tbl(), user_input = stock_selection_triggered())
-    })
-    
-    # 2.0 FAVORITES ----
+    # 2.0 FAVORITE CARDS ----
     
     # 2.1 Reactive Values - User Favorites ----
     reactive_values <- reactiveValues()
@@ -284,7 +277,19 @@ server <- function(input, output, session) {
         shinyjs::toggle(id = "favorite_card_section", anim = TRUE, animType = "slide")
     })
     
-    # 3.0 FAVORITE PLOTS ----
+    # 3.0 FAVORITE PLOT  ----
+ 
+    # 3.1 Plot Header ----
+    output$plot_header <- renderText({
+        stock_selection_triggered()
+    })
+    
+    # 3.2 Plotly Plot ----
+    output$plotly_plot <- renderPlotly({
+        stock_data_tbl() %>% plot_stock_data()
+    })
+    
+    # 3.3 Favorite Plots ----
     output$stock_charts <- renderUI({
         
         # First Tab Panel
@@ -343,6 +348,12 @@ server <- function(input, output, session) {
                 append(list(id ="tab_panel_stock_chart", type ="pills", selected = selected_tab()))
         )
         
+    })
+    
+    # 4.0 COMMENTARY ----
+    # 4.1 Generate Commentary ----
+    output$analyst_commentary <- renderText({
+        generate_commentary(data = stock_data_tbl(), user_input = stock_selection_triggered())
     })
     
 }
