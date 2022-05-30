@@ -294,20 +294,13 @@ server <- function(input, output, session) {
     output$stock_charts <- renderUI({
         
         # First Tab Panel
-        tab_panel_1 <- tabPanel(
-            title = "Last Analysis",
-            div(
-                class = "panel",
-                div(
-                    class = "panel-header",
-                    h4(stock_symbol())
-                ),
-                div(
-                    class = "panel-body",
-                    plotlyOutput(outputId = "plotly_plot")
-                )
-            )
-        )
+        tab_panel_1 <- 
+            tabPanel(title = "Last Analysis",
+                   panel_card(title = stock_symbol(),
+                           plotlyOutput(outputId = "plotly_plot")
+                       )
+                   )
+        
         
       # Favorite Panels
       favorite_tab_panels <- NULL
@@ -315,40 +308,32 @@ server <- function(input, output, session) {
       if (length(reactive_values$favorites_list) >0){
           
          favorite_tab_panels <-  reactive_values$favorites_list %>%
-              map(.f = function(x){
-                  tabPanel(
-                      title = x,
-                      div(
-                          class = "panel",
-                          div(
-                              class = "panel-header",
-                              h4(x)
-                          ),
-                          div(
-                              class = "panel-body",
-                              x %>%
-                                  get_stock_data(
-                                      from       = today() - days(180),
-                                      to         = today(),
-                                      mavg_short = mavg_short(),
-                                      mavg_long  = mavg_long()
-                                  ) %>%
-                                  plot_stock_data()
-                          )
-                      )
-                  )
-              })
-      }
-        
+             map(function(x){
+                 tabPanel(
+                 title = x,
+                 panel_card(title = x,
+                                     x %>%
+                                         get_stock_data(
+                                             from       = today() - days(180),
+                                             to         = today(),
+                                             mavg_short = mavg_short(),
+                                             mavg_long  = mavg_long()
+                                         ) %>%
+                                        plot_stock_data()
+                                 )
+                             )
+                          }
+             )
+         }
+             
     
         # Building the Tabset Panel
         do.call(
             what = tabsetPanel,
-            args = list(tab_panel_1) %>% 
+            args = list(tab_panel_1) %>%
                 append(favorite_tab_panels) %>%
                 append(list(id ="tab_panel_stock_chart", type ="pills", selected = selected_tab()))
         )
-        
     })
     
     # 4.0 COMMENTARY ----

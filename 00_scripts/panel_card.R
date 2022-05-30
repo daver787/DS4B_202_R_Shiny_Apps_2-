@@ -1,24 +1,26 @@
 
 
-panel_card <- function(title,...,footer =NULL){ tabPanel(
-    title = x,
+panel_card <- function(title = title,...,footer = NULL){
+    
+    ftr <- NULL
+    if (!is.null(footer)){
+        ftr <- div(
+            class = "panel-footer",
+            footer
+        )
+    }
+    
     div(
         class = "panel",
         div(
             class = "panel-header",
-            h4(x)
+            h4(title)
         ),
         div(
             class = "panel-body",
-            x %>%
-                get_stock_data(
-                    from       = today() - days(180),
-                    to         = today(),
-                    mavg_short = mavg_short(),
-                    mavg_long  = mavg_long()
-                ) %>%
-                plot_stock_data()
-        )
+            ...
+        ),
+        ftr
     )
-)
 }
+
