@@ -56,7 +56,7 @@ ui <-tagList(
                                       ,p(class = "text-center","Please Log In")),
         login_title = "Enter"
     ),
-   # verbatimTextOutput(outputId = "creds"),
+    verbatimTextOutput(outputId = "creds"),
     
     # Website ----
     uiOutput(outputId = "website")
@@ -67,6 +67,8 @@ ui <-tagList(
 server <- function(input, output, session) {
     
     # 0.0 USER LOGIN ----
+    
+    # 0.1 Credentials -----
 credentials <- callModule(
         module   = shinyauthr::login,
         id       = "login",
@@ -82,10 +84,30 @@ logout_init <- callModule(
     active = reactive(credentials()$user_auth)
     )
 
-# output$creds <- renderPrint({
-#     credentials()
-#     })
 
+
+    # 0.2 Instantiating  User Information ----
+    reactive_values <- reactiveValues()
+
+    observe({
+        if (credentials()$user_auth){
+            
+            user_data_tbl <- credentials()$info
+            reactive_values$permissions    <- user_data_tbl$permissions
+            reactive_values$last_symbol    <- user_data_tbl$last_symbol
+            reactive_values$favorites_list <- user_data_tbl %>% pull(favorites) %>% pluck(1)
+            reactive_values$user_name      <- user_data_tbl$name
+        }
+        
+        output$creds <- renderPrint({
+           list(reactive_values$permissions,
+                reactive_values$user_name,
+                reactive_values$favorites_list,
+                reactive_values$last_symbol
+                )
+                
+        })
+    })   
 
 
     # 1.0 SETTINGS ----
@@ -142,9 +164,7 @@ logout_init <- callModule(
     # 2.0 FAVORITE CARDS ----
     
     # 2.1 Reactive Values - User Favorites ----
-    reactive_values <- reactiveValues()
-    reactive_values$favorites_list <- current_user_favorites
-    
+  
     # 2.2 Add Favorites ----
     observeEvent(input$favorites_add, {
         
@@ -303,6 +323,12 @@ logout_init <- callModule(
         collapsible = TRUE,
         
         theme = shinytheme("cyborg"),
+        
+        header = div(
+            class = "pull-right",
+            style = "padding-right: 20px;",
+            p("Welcome, ", reactive_values$user_name)
+        ),
         
         tabPanel(
             title = "Analysis",
