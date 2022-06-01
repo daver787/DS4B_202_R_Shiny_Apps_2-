@@ -27,7 +27,6 @@ stock_list_tbl <- get_stock_list("SP500")
 
 
 # USER DATA ----
-current_user_favorites <- c("AAPL", "GOOG", "NFLX")
 user_base_tbl <- tibble(
     user = c("user1", "user2"),
     password = c("pass1", "pass2"), 
@@ -51,12 +50,13 @@ ui <-tagList(
     
     
     # User Login ----
+    #verbatimTextOutput(outputId = "creds"),
     shinyauthr::loginUI(
         id = "login", title = tagList(h1(class = "text-center","Stock Analyzer", tags$small("by Business Science"))
                                       ,p(class = "text-center","Please Log In")),
         login_title = "Enter"
     ),
-    verbatimTextOutput(outputId = "creds"),
+    
     
     # Website ----
     uiOutput(outputId = "website")
@@ -332,12 +332,8 @@ logout_init <- callModule(
         
         tabPanel(
             title = "Analysis",
-            
-            # CSS ----
-            shinythemes::themeSelector(),
-           
-            
-            # 1.0 HEADER ----
+        
+            # 5.1.0 HEADER ----
             div(
                 class = "container",
                 id = "header",
@@ -346,11 +342,11 @@ logout_init <- callModule(
                   a(href = "https://www.business-science.io/", target = "_blank", "Expert Shiny Applications Course (DS4B 202-R)"))
             ),
             
-            # 2.0 FAVORITES ----
+            # 5.2.0 FAVORITES ----
             div(
                 class = "container hidden-sm hidden-xs",
                 id = "favorite_container",
-                # 2.1 USER INPUTS ----
+                # 5.2.1 USER INPUTS ----
                 div(
                     class = "",
                     column(
@@ -360,7 +356,7 @@ logout_init <- callModule(
                         actionButton(inputId = "favorites_toggle", "Show/Hide", class = "pull-right")
                     )
                 ),
-                # 2.2 FAVORITE CARDS ----
+                # 5.2.2 FAVORITE CARDS ----
                 div(
                     class = "row",
                     id = "favorite_card_section",
@@ -368,12 +364,12 @@ logout_init <- callModule(
                 )
             ),
             
-            # 3.0 APPLICATION UI -----
+            # 5.3.0 APPLICATION UI -----
             div(
                 class = "container",
                 id = "application_ui",
                 
-                # 3.1 USER INPUTS ----
+                # 5.3.1 USER INPUTS ----
                 column(
                     width = 4, 
                     wellPanel(
@@ -384,7 +380,9 @@ logout_init <- callModule(
                                 label   = "Stock List (Pick One to Analyze)",
                                 choices = stock_list_tbl$label,
                                 multiple = FALSE, 
-                                selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
+                                selected = stock_list_tbl %>% 
+                                    filter(label %>% str_detect(pattern = paste0(reactive_values$last_symbol,","))) %>% 
+                                    pull(label),
                                 options = pickerOptions(
                                     actionsBox = FALSE,
                                     liveSearch = TRUE,
@@ -411,14 +409,14 @@ logout_init <- callModule(
                     )
                 ),
                 
-                # 3.2 PLOT PANEL ----
+                # 5.3.2 PLOT PANEL ----
                 column(
                     width = 8, 
                     uiOutput(outputId = "stock_charts")
                 )
             ),
             
-            # 4.0 ANALYST COMMENTARY ----
+            # 5.3.3 ANALYST COMMENTARY ----
             div(
                 class = "container",
                 id = "commentary",
