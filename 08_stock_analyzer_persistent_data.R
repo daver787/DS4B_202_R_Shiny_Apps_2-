@@ -23,6 +23,7 @@ source(file = "00_scripts/stock_analysis_functions.R")
 source(file = "00_scripts/info_card.R")
 source(file = "00_scripts/panel_card.R")
 source(file = "00_scripts/generate_favorite_cards.R")
+source(file = "00_scripts/crud_operations_local.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
@@ -39,7 +40,7 @@ ui <- tagList(
     shinyjs::useShinyjs(),
     
     # User Login ----
-    # verbatimTextOutput(outputId = "creds"),
+     verbatimTextOutput(outputId = "creds"),
     shinyauthr::loginUI(
         id = "login", 
         title = tagList(h2(class = "text-center", "Stock Analyzer"), 
@@ -58,8 +59,7 @@ server <- function(input, output, session) {
     
     
     # 0.0 READ DATA ----
-    user_base_tbl <<- read_user_base()
-    
+    read_user_base()
     
     # 0.0 USER LOGIN ----
     
@@ -97,6 +97,7 @@ server <- function(input, output, session) {
     
     output$creds <- renderPrint({
         list(
+            credentials(),
             reactive_values$permissions,
             reactive_values$user_name,
             reactive_values$favorites_list,
@@ -114,6 +115,14 @@ server <- function(input, output, session) {
     })
     
     # 1.2 Stock Symbol ----
+    observeEvent(input$analyze, {
+        update_and_write_user_base(
+            user_name    = credentials()$info$user,
+            column_name  = "last_symbol",
+            assign_input = get_symbol_from_user_input(input$stock_selection)
+        )
+    })
+    
     stock_symbol <- eventReactive(input$analyze, {
         get_symbol_from_user_input(input$stock_selection)
     }, ignoreNULL = FALSE)
