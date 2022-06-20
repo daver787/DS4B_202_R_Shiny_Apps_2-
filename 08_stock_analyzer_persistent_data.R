@@ -40,7 +40,7 @@ ui <- tagList(
     shinyjs::useShinyjs(),
     
     # User Login ----
-     verbatimTextOutput(outputId = "creds"),
+     # verbatimTextOutput(outputId = "creds"),
     shinyauthr::loginUI(
         id = "login", 
         title = tagList(h2(class = "text-center", "Stock Analyzer"), 
@@ -57,13 +57,12 @@ ui <- tagList(
 # SERVER ----
 server <- function(input, output, session) {
     
+    # 0.0 READ USER BASE & AUTHENTICATE USER LOGIN ----
     
-    # 0.0 READ DATA ----
+    # 0.1 Return user_base_tbl - To Global Environment ----
     read_user_base()
     
-    # 0.0 USER LOGIN ----
-    
-    # 0.1 Credentials ----
+    # 0.2 Credentials ----
     credentials <- callModule(
         module = shinyauthr::login,
         id       = "login",
@@ -79,7 +78,7 @@ server <- function(input, output, session) {
         active = reactive(credentials()$user_auth)
     )
     
-    # 0.2 Instantiating User Information ----
+    # 0.3 Instantiating User Information ----
     reactive_values <- reactiveValues()
     
     observe({
@@ -133,6 +132,22 @@ server <- function(input, output, session) {
     }, ignoreNULL = FALSE)
     
     # 1.4 Apply & Save Settings ----
+    observeEvent(input$apply_and_save, {
+        
+        user_settings_tbl <- tibble(
+            mavg_short  = input$mavg_short,
+            mavg_long   = input$mavg_long,
+            time_window = input$time_window
+        )
+        
+        update_and_write_user_base(
+          user_name    = credentials()$info$user,
+          column_name  = "user_settings",
+          assign_input = list(user_settings_tbl)
+        )
+    })
+    
+    
     mavg_short <- eventReactive(input$apply_and_save, {
         input$mavg_short
     }, ignoreNULL = FALSE)
@@ -185,6 +200,12 @@ server <- function(input, output, session) {
             reactive_values$favorites_list <- c(reactive_values$favorites_list, new_symbol) %>% unique()
             
             updateTabsetPanel(session = session, inputId = "tab_panel_stock_chart", selected = new_symbol)
+            
+            update_and_write_user_base(
+                user_name    = credentials()$info$user,
+                column_name  = "favorites",
+                assign_input = list(reactive_values$favorites_list)
+            )
         }
         
     })
@@ -238,6 +259,12 @@ server <- function(input, output, session) {
         updateSelectInput(session = session, 
                           inputId = "drop_list", 
                           choices = reactive_values$favorites_list %>% sort())
+        
+        update_and_write_user_base(
+            user_name    = credentials()$info$user,
+            column_name  = "favorites",
+            assign_input = list(reactive_values$favorites_list)
+        )
     })
     
     # 2.4.2 Clear All ----
@@ -248,6 +275,12 @@ server <- function(input, output, session) {
         updateSelectInput(session = session, 
                           inputId = "drop_list", 
                           choices = reactive_values$favorites_list %>% sort())
+        
+        update_and_write_user_base(
+            user_name    = credentials()$info$user,
+            column_name  = "favorites",
+            assign_input = list(reactive_values$favorites_list)
+        )
     })
     
     # 2.5 Show/Hide Favorites ----
@@ -325,7 +358,7 @@ server <- function(input, output, session) {
     
     output$website <- renderUI({
         
-        req(credentials()$user_auth)
+        req(credentials()$user_auth, reactive_values$last_symbol)
         
         navbarPage(
             title = "Stock Analyzer",
