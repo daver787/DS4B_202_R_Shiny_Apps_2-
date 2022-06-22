@@ -16,10 +16,28 @@ library(lubridate)
 # 1.0 CONNECTION TO REMOTE MONGODB ----
 
 # Setup config Package & database YAML
+Sys.setenv(R_CONFIG_ACTIVE = "default")
 
+
+config <- config::get(file = "config.yml")
+
+
+mongo_connect <- function(collection, database,
+                          host     = config$host,
+                          username = config$username, 
+                          password = config$password) 
+    {
+    
+    mongo(
+        collection = collection,
+        url        = str_glue("mongodb+srv://{username}:{password}@{host}/{database}"),
+        options    = ssl_options(weak_cert_validation = T)
+         )
+    
+}
 
 # Connect to MongoDB Atlas Cloud Database
-
+mongo_connection <- mongo_connect(collection = "mtcars", database = "rstats")
 
 # 2.0 ADD DATA ----
 
