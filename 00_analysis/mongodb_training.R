@@ -30,8 +30,7 @@ mongo_connect <- function(collection, database,
     
     mongo(
         collection = collection,
-        url        = str_glue("mongodb+srv://{username}:{password}@{host}/{database}"),
-        options    = ssl_options(weak_cert_validation = T)
+        url        = str_glue("mongodb+srv://{username}:{password}@{host}/{database}")
          )
     
 }

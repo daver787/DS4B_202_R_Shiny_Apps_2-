@@ -1,9 +1,9 @@
 default:
     host:   "cluster0.npgfdeg.mongodb.net"
     username:   "despinola"
-    password:   "GrokRocks789$"
+    password:   "francais2"
 
 production:
     host:   "cluster0.npgfdeg.mongodb.net"
     username:   "despinola"
-    password:   "GrokRocks789$"
+    password:   "francais2"
