@@ -36,19 +36,31 @@ mongo_connect <- function(collection, database,
 }
 
 # Connect to MongoDB Atlas Cloud Database
-mongo_connection <- mongo_connect(collection = "mtcars", database = "rstats")
+mongo_connect(collection = "mtcars", database = "rstats")
 
 # 2.0 ADD DATA ----
 
 # Connect to collection
-
+mongo_connection <- mongo_connect(collection = "mtcars", database = "rstats")
 
 # Adding data
-
+mtcars  %>%
+    as_tibble(rownames = "model") %>%
+    mongo_connection$insert()
 
 # 3.0 QUERYING DATA ----
 
+mongo_connection$find()
 
+mongo_connection$find(limit = 6)
+
+mongo_connection$find(limit = 6) %>%
+    toJSON() %>%
+    prettify()
+
+mongo_connection$find(query = '{"model": "Hornet Sportabout"}') %>% as_tibble()
+
+mongo_connection$count()
 
 # 4.0 MODIFYING A COLLECTION ----
 
@@ -70,6 +82,20 @@ new_car_tbl <- tibble(
 new_car_tbl
 
 # 4.1 Insert New Record
+mongo_connection$insert(new_car_tbl)
+
+mongo_connection$count()
+
+mongo_connection$find(query = '{"model" : "Ford F150"}')
+
+tibble(
+    model = "AMC Javelin"
+) %>%
+    toJSON() %>%
+    str_remove_all(pattern = "^\\[|\\]$") %>%
+    prettify() %>%
+    mongo_connection$find(query = .) %>%
+    as_tibble()
 
 
 # 4.2 Change a Record
