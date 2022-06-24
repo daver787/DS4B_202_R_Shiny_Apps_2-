@@ -89,7 +89,7 @@ mongo_connection$count()
 mongo_connection$find(query = '{"model" : "Ford F150"}')
 
 tibble(
-    model = "AMC Javelin"
+    model = "Ford F150"
 ) %>%
     toJSON() %>%
     str_remove_all(pattern = "^\\[|\\]$") %>%
@@ -99,14 +99,35 @@ tibble(
 
 
 # 4.2 Change a Record
+mongo_connection$update(query  = '{"model" : "Ford F150"}',
+                        update = '{"$set" : {"mpg": 10.8} }'
+                        )
 
+mongo_connection$update(query  = '{"model" : "Ford F250"}',
+                        update = '{"$set" : {"mpg": 10.8} }',
+                        upsert = TRUE
+)
+
+
+mongo_connection$find(query = '{"model" : "Ford F250"}')
+
+mongo_connection$count()
+
+mongo_connection$find() %>% as_tibble() %>% tail()
 
 # 4.3 Remove a record
-
+mongo_connection$remove(query = '{"model": "Ford F250"}')
+mongo_connection$find() %>% as_tibble() %>% tail()
 
 # 4.4 Remove entire table (be careful)
 
+mongo_connection$drop()
 
+
+
+# 4.5 Disconnecting from Database ----
+
+mongo_connection$disconnect()
 
 
 # 5.0 NESTED STRUCTURES ----
