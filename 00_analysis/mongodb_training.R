@@ -153,13 +153,22 @@ user_base_tbl <- tibble(
 ) 
 
 # Converting to JSON
+user_base_tbl %>%
+    toJSON()
 
+user_base_tbl %>%
+    toJSON() %>%
+    prettify()
+
+user_base_tbl %>%
+    toJSON(POSIXt = "mongo") %>%
+    prettify()
 
 # Adding nested structure to mongodb
-
+mongo_connection$insert(user_base_tbl)
 
 # Retrieve - Preserves nested structure and format
-
+mongo_connection$find() %>% as_tibble()
 
 
 # 6.0 STOCK ANALYZER APP - CRUD WORKFLOW -----
@@ -170,8 +179,12 @@ mongo_connection <- mongo_connect(
     collection = "user_base"
 )
 
-# 6.1 Add User Data ----
+mongo_connection$drop()
+mongo_connection$count()
+mongo_connection$find() 
 
+# 6.1 Add User Data ----
+mongo_connection$insert(user_base_tbl)
 
 
 # 6.2 Get User Data ----
@@ -179,7 +192,23 @@ mongo_connection <- mongo_connect(
 #     user_base_tbl <<- read_rds(path = "00_data_local/user_base_tbl.rds")
 # }
 
+mongo_read_user_base <- function(database ="stock_analyzer", collection ="user_base_test"){
+    
+    mongo_connection <- mongo_connect(database    = database,
+                                       collection = collection,
+                                       host       = config$host,
+                                       username   = config$username,
+                                       password   = config$password)
+    
+    
+    user_base_tbl <<- mongo_connection$find() %>% as_tibble()
+    
+    mongo_connection$disconnect()
+    
+}
 
+rm(user_base_tbl)
+mongo_read_user_base(database = "stock_analyzer", collection = "user_base_test")
 
 # 6.3 What shinyauthr does... ----
 
