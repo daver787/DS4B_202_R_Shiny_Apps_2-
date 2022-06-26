@@ -176,7 +176,7 @@ mongo_connection$find() %>% as_tibble()
 # Create new collection
 mongo_connection <- mongo_connect(
     database   = "stock_analyzer",
-    collection = "user_base"
+    collection = "user_base_test"
 )
 
 mongo_connection$drop()
@@ -207,19 +207,62 @@ mongo_read_user_base <- function(database ="stock_analyzer", collection ="user_b
     
 }
 
-rm(user_base_tbl)
+#rm(user_base_tbl)
 mongo_read_user_base(database = "stock_analyzer", collection = "user_base_test")
 
 # 6.3 What shinyauthr does... ----
 
+user_1_tbl <- user_base_tbl %>%
+    filter(
+        user     == "user1",
+        password == "pass1"
+    )
 
+user_1_tbl
+
+user_1_tbl %>%
+    pull(favorites)
+
+
+pluck(user_1_tbl, "favorites", 1) <- c("AAPL", "GOOG", "NFLX", "ADBE")
+
+pluck(user_1_tbl, "favorites", 1)
 
 # 6.5 Update Mongo ----
 
-# update_and_write_user_base <- function(user_name, column_name, assign_input) {
-#     user_base_tbl[user_base_tbl$user == user_name, ][[column_name]] <<- assign_input
-#     write_rds(user_base_tbl, path = "00_data_local/user_base_tbl.rds")
-# }
+user_name <- "user2"
+
+mongo_connection$find(query = query_string)
+
+
+mongo_update_and_write_user_base <- function(user_name, column_name, assign_input,
+                                             database   = "stock_analyzer", 
+                                             collection = "user_base_test") {
+    
+    user_base_tbl[user_base_tbl$user == user_name, ][[column_name]] <<- assign_input
+    
+    
+    mongo_connection <- mongo_connect(database    = database,
+                                      collection = collection,
+                                      host       = config$host,
+                                      username   = config$username,
+                                      password   = config$password)
+    # Query
+    query_string <- str_c('{"user" : "',user_name, '"}')
+    
+    
+    # Update String
+    
+    # Update
+    
+    mongo_connection$update(query  = '{"model" : "Ford F250"}',
+                            update = '{"$set" : {"mpg": 10.8} }',
+                            upsert = TRUE
+    )
+    
+    
+     write_rds(user_base_tbl, path = "00_data_local/user_base_tbl.rds")
+}
 
 
 
