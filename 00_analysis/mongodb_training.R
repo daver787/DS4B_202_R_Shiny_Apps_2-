@@ -243,38 +243,50 @@ mongo_update_and_write_user_base <- function(user_name, column_name, assign_inpu
     
     
     mongo_connection <- mongo_connect(database    = database,
-                                      collection = collection,
-                                      host       = config$host,
-                                      username   = config$username,
-                                      password   = config$password)
+                                      collection  = collection,
+                                      host        = config$host,
+                                      username    = config$username,
+                                      password    = config$password)
     # Query
     query_string <- str_c('{"user" : "',user_name, '"}')
     
     
     # Update String
+    update_string <- user_base_tbl %>%
+        filter( user == user_name) %>%
+        select(-user, -password, -permissions) %>%
+        toJSON(POSIXt = "mongo") %>%
+        str_remove_all(pattern = "^\\[|\\]$")
     
     # Update
-    
-    mongo_connection$update(query  = '{"model" : "Ford F250"}',
-                            update = '{"$set" : {"mpg": 10.8} }',
+     mongo_connection$update(query  = query_string,
+                            update = str_c('{"$set" : ', update_string, ' }'),
                             upsert = TRUE
     )
     
-    
-     write_rds(user_base_tbl, path = "00_data_local/user_base_tbl.rds")
+     mongo_connection$disconnect()
 }
 
 
 
 # Before update
+mongo_connection$find()
 
+user_1_tbl %>% pull(user_settings)
 
 # After update
-
+mongo_update_and_write_user_base(user_name    = "user1",
+                                 column_name  = "user_settings",
+                                 assign_input = list(tibble(
+                                     mavg_short  = 15,
+                                     mavg_long   = 75,
+                                     time_window = 720
+                                 ))
+                                 )
 
 # 7.0 Save Functions ----
 
-dump(c("mongo_connect", "mongo_get_user_base", "mongo_update_user_record"), 
+dump(c("mongo_connect", "mongo_read_user_base", "mongo_update_and_write_user_base"), 
      file = "00_scripts/crud_operations_mongodb.R", append = FALSE)
 
 
