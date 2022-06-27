@@ -27,7 +27,13 @@ source(file = "00_scripts/stock_analysis_functions.R")
 source(file = "00_scripts/info_card.R")
 source(file = "00_scripts/panel_card.R")
 source(file = "00_scripts/generate_favorite_cards.R")
+source(file = "00_scripts/crud_operations_local.R")
 source(file = "00_scripts/crud_operations_mongodb.R")
+
+Sys.setenv(R_CONFIG_ACTIVE = "default")
+config <- config::get(file = "config.yml")
+database <- "stock_analyzer"
+collection <- "user_base_test"
 
 stock_list_tbl <- get_stock_list("SP500")
 
@@ -65,7 +71,7 @@ server <- function(input, output, session) {
    # 0.0 READ USER BASE & AUTHENTICATE USER LOGIN ----
     
     # 0.1 Return user_base_tbl - To Global Environment -----
-    read_user_base()
+    mongo_read_user_base(database = database, collection = collection)
     
     # 0.2 Credentials ----
     credentials <- callModule(
@@ -120,10 +126,12 @@ server <- function(input, output, session) {
     
     # 1.2 Stock Symbol ----
     observeEvent(input$analyze, {
-        update_and_write_user_base(
+        mongo_update_and_write_user_base(
             user_name    = credentials()$info$user,
             column_name  = "last_symbol", 
-            assign_input = get_symbol_from_user_input(input$stock_selection)
+            assign_input = get_symbol_from_user_input(input$stock_selection),
+            database     = database,
+            collection   = collection
         )
     })
     
@@ -145,10 +153,12 @@ server <- function(input, output, session) {
             time_window = input$time_window
         )
         
-        update_and_write_user_base(
+        mongo_update_and_write_user_base(
             user_name    = credentials()$info$user, 
             column_name  = "user_settings",
-            assign_input = list(user_settings_tbl)
+            assign_input = list(user_settings_tbl),
+            database     = database,
+            collection   = collection
         )
     })
     
@@ -206,10 +216,12 @@ server <- function(input, output, session) {
             
             updateTabsetPanel(session = session, inputId = "tab_panel_stock_chart", selected = new_symbol)
             
-            update_and_write_user_base(
-                user_name = credentials()$info$user,
-                column_name = "favorites",
-                assign_input = list(reactive_values$favorites_list)
+            mongo_update_and_write_user_base(
+                user_name    = credentials()$info$user,
+                column_name  = "favorites",
+                assign_input = list(reactive_values$favorites_list),
+                database     = database,
+                collection   = collection
             )
         }
         
@@ -265,10 +277,12 @@ server <- function(input, output, session) {
                           inputId = "drop_list", 
                           choices = reactive_values$favorites_list %>% sort())
         
-        update_and_write_user_base(
+        mongo_update_and_write_user_base(
             user_name    = credentials()$info$user,
             column_name  = "favorites",
-            assign_input = list(reactive_values$favorites_list)
+            assign_input = list(reactive_values$favorites_list),
+            database     = database,
+            collection   = collection
         )
     })
     
@@ -281,10 +295,12 @@ server <- function(input, output, session) {
                           inputId = "drop_list", 
                           choices = reactive_values$favorites_list %>% sort())
         
-        update_and_write_user_base(
+        mongo_update_and_write_user_base(
             user_name    = credentials()$info$user,
             column_name  = "favorites",
-            assign_input = list(reactive_values$favorites_list)
+            assign_input = list(reactive_values$favorites_list),
+            database     = database,
+            collection   = collection
         )
     })
     
