@@ -71,11 +71,16 @@ server <- function(input, output, session) {
    # 0.0 READ USER BASE & AUTHENTICATE USER LOGIN ----
     
     # 0.1 Return user_base_tbl - To Global Environment -----
-    mongo_read_user_base(database = database, collection = collection)
+    mongo_read_user_base(
+        database   = database,
+        collection = collection, 
+        host       = config$host,
+        username   = config$username,
+        password   = config$password)
     
     # 0.2 Credentials ----
     credentials <- callModule(
-        module = shinyauthr::login,
+        module   = shinyauthr::login,
         id       = "login",
         data     = user_base_tbl,
         user_col = user,
@@ -131,7 +136,10 @@ server <- function(input, output, session) {
             column_name  = "last_symbol", 
             assign_input = get_symbol_from_user_input(input$stock_selection),
             database     = database,
-            collection   = collection
+            collection   = collection,
+            host         = config$host,
+            username     = config$username,
+            password     = config$password
         )
     })
     
@@ -158,7 +166,10 @@ server <- function(input, output, session) {
             column_name  = "user_settings",
             assign_input = list(user_settings_tbl),
             database     = database,
-            collection   = collection
+            collection   = collection,
+            host         = config$host,
+            username     = config$username,
+            password     = config$password 
         )
     })
     
@@ -221,7 +232,10 @@ server <- function(input, output, session) {
                 column_name  = "favorites",
                 assign_input = list(reactive_values$favorites_list),
                 database     = database,
-                collection   = collection
+                collection   = collection,
+                host         = config$host,
+                username     = config$username,
+                password     = config$password
             )
         }
         
@@ -282,7 +296,10 @@ server <- function(input, output, session) {
             column_name  = "favorites",
             assign_input = list(reactive_values$favorites_list),
             database     = database,
-            collection   = collection
+            collection   = collection,
+            host         = config$host,
+            username     = config$username,
+            password     = config$password
         )
     })
     
@@ -300,7 +317,10 @@ server <- function(input, output, session) {
             column_name  = "favorites",
             assign_input = list(reactive_values$favorites_list),
             database     = database,
-            collection   = collection
+            collection   = collection,
+            host         = config$host,
+            username     = config$username,
+            password     = config$password
         )
     })
     
